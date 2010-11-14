@@ -32,6 +32,19 @@ celeryd_list.each do |celeryd|
             c.notify = 'campfire-room'
         end
     end
+
+    # bounce the celeryd process if it spins out of control or leaks memory
+    # (i.e. if running in DEBUG mode)
+    w.restart_if do |restart|
+      restart.condition(:memory_usage) do |c|
+        c.above = 300.megabytes
+      end
+
+      restart.condition(:cpu_usage) do |c|
+        c.above = 50.percent
+        c.times = 5
+      end
+    end
   end
 end
 
