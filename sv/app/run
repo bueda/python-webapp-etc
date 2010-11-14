@@ -1,0 +1,14 @@
+#!/bin/bash
+
+APP_ROOT="/var/webapps/app/releases/current"
+GUNICORN_BINARY="$APP_ROOT/env/bin/gunicorn_django"
+PID=/var/run/gunicorn/app.pid
+
+if [ -f $PID ]; then rm $PID fi
+
+export DEPLOYMENT_TYPE="DEV"
+
+cd $APP_ROOT
+exec 2>&1
+exec chpst -u deploy:bueda $GUNICORN_BINARY -c /etc/gunicorn/app.py \
+        --pidfile=$PID
